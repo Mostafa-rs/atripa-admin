@@ -1,0 +1,9 @@
+{
+  "app": "nasr",
+  "disks": [
+    {
+      "name": "data",
+      "mountTo": "media"
+    }
+  ]
+}
