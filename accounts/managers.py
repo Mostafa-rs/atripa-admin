@@ -1,3 +1,11 @@
+"""
+رابط دیتابیس اپلیکیشن کاربران
+برنامه نویس: مصطفی رسولی
+mostafarasooli54@gmail.com
+1402/04/22
+"""
+
+
 from django.contrib.auth.models import BaseUserManager
 
 

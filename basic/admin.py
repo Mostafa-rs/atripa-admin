@@ -24,4 +24,6 @@ admin.site.register(SupportType)
 admin.site.register(Subscribe)
 admin.site.register(SubscribeOptions)
 admin.site.register(Company)
+admin.site.register(Continental)
+admin.site.register(PrefixNumber)
 

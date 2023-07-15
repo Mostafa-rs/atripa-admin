@@ -14,6 +14,9 @@ class Support(models.Model):
     viewer = models.ForeignKey('accounts.User', models.CASCADE, 'scf_viewer', to_field='id', null=True, blank=True)  # پشتیبان
     viewed_date = models.DateTimeField(null=True, blank=True)  # ساعت مشاهده پشتیبان
 
+    class Meta:
+        ordering = ('-id',)
+
     def __str__(self):
         return f'{self.creator} - {self.email}'
 
@@ -22,6 +25,9 @@ class Subject(models.Model):
     parent = models.ForeignKey('Subject', on_delete=models.CASCADE, related_name='childs', null=True, blank=True)
     is_child = models.BooleanField(default=False)
     name = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ('-id',)
 
     def __str__(self):
         return self.name

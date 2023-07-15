@@ -1,8 +1,18 @@
+"""
+سریالایزر دیتا اپلیکیشن اطلاعات پایه
+برنامه نویس: مصطفی رسولی
+mostafarasooli54@gmail.com
+1402/04/22
+"""
+
 from rest_framework import serializers
 from . import models
 
 
 class CountrySerializer(serializers.ModelSerializer):
+    continental = serializers.StringRelatedField(source='continental.name')
+    prefix_number = serializers.StringRelatedField(source='prefix_number.number')
+
     class Meta:
         model = models.Country
         fields = ('id', 'name', 'english_name', 'continental', 'prefix_number', 'iata', 'description')
@@ -17,8 +27,8 @@ class ProvinceSerializer(serializers.ModelSerializer):
 
 
 class CitySerializer(serializers.ModelSerializer):
-    province = serializers.CharField(source='province.name', read_only=True)
-    country = serializers.CharField(source='country.name', read_only=True)
+    province = ProvinceSerializer()
+    # country = CountrySerializer()
 
     class Meta:
         model = models.City

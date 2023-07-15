@@ -1,3 +1,11 @@
+"""
+توابع کاربردی اپلیکیشن کاربران
+برنامه نویس: مصطفی رسولی
+mostafarasooli54@gmail.com
+1402/04/22
+"""
+
+
 from django.utils import timezone
 import os
 from uuid import uuid4

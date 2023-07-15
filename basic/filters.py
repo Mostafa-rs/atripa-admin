@@ -1,13 +1,30 @@
+"""
+فیلتر دیتا اپلیکیشن اطلاعات پایه
+برنامه نویس: مصطفی رسولی
+mostafarasooli54@gmail.com
+1402/04/22
+"""
+
+
 from django_filters import rest_framework as filters
 from . import models
 
 
+class CityFilter(filters.FilterSet):
+    # name = filters.CharFilter(lookup_expr='icontains')
+    # english_name = filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = models.City
+        fields = ('name', 'english_name')
+
+
 class VehicleFilter(filters.FilterSet):
-    type = filters.NumberFilter(lookup_expr='exact')
+    v_type = filters.NumberFilter(lookup_expr='exact', field_name='type')
 
     class Meta:
         model = models.Vehicle
-        fields = ('type',)
+        fields = ('v_type',)
 
 
 class AccommodationFilter(filters.FilterSet):

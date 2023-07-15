@@ -13,5 +13,5 @@ class SupportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Support
-        fields = ('creator', 'email', 'phone_number', 'message', 'subjects', 'viewer', 'ip',
+        fields = ('id', 'creator', 'email', 'phone_number', 'message', 'subjects', 'viewer', 'ip',
                   'modified')

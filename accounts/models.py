@@ -1,8 +1,16 @@
+"""
+دیتابیس اپلیکیشن کاربران
+برنامه نویس: مصطفی رسولی
+mostafarasooli54@gmail.com
+1402/04/22
+"""
+
+
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django_jalali.db import models as jmodels
 from .managers import UserManager
-from .image_funcs import path_and_rename
+from .utils import path_and_rename
 
 
 class User(AbstractBaseUser):

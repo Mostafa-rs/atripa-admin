@@ -6,7 +6,8 @@ from . import filters as myfilters
 from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.http import JsonResponse
-from rest_framework import status
+from rest_framework import status, response
+from rest_framework.views import APIView
 
 
 class CountryListCreateView(ListCreateAPIView):
@@ -16,10 +17,10 @@ class CountryListCreateView(ListCreateAPIView):
     def get_queryset(self):
         if self.request.query_params.get('name') or self.request.query_params.get('english_name'):
             qs = models.Country.objects.filter(Q(name__icontains=self.request.query_params.get('name')) |
-                                               Q(english_name__icontains=self.request.query_params.get('english_name')))\
-                                               .order_by('-id')
+                                               Q(english_name__icontains=self.request.query_params.get('english_name')))
+
             return qs
-        return models.Country.objects.all().order_by('-id')
+        return models.Country.objects.all()
 
 
 class CountryRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
@@ -34,10 +35,10 @@ class ProvinceListCreateView(ListCreateAPIView):
     def get_queryset(self):
         if self.request.query_params.get('name') or self.request.query_params.get('english_name'):
             qs = models.Country.objects.filter(Q(name__icontains=self.request.query_params.get('name')) |
-                                               Q(english_name__icontains=self.request.query_params.get('english_name')))\
-                                               .order_by('-id')
+                                               Q(english_name__icontains=self.request.query_params.get('english_name')))
+
             return qs
-        return models.Province.objects.all().order_by('-id')
+        return models.Province.objects.all()
 
 
 class ProvinceRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
@@ -52,11 +53,11 @@ class CityListCreateView(ListCreateAPIView):
     def get_queryset(self):
         if self.request.query_params.get('name') or self.request.query_params.get('english_name'):
             qs = models.City.objects.filter(Q(name__icontains=self.request.query_params.get('name')) |
-                                               Q(english_name__icontains=self.request.query_params.get('english_name')),
-                                            deleted=False)\
-                                               .order_by('-id')
+                                            Q(english_name__icontains=self.request.query_params.get('english_name')),
+                                            deleted=False)
+
             return qs
-        return models.City.objects.filter(deleted=False).order_by('-id')
+        return models.City.objects.filter(deleted=False)
 
 
 class CityRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
@@ -67,28 +68,18 @@ class CityRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         if models.City.objects.filter(pk=kwargs['pk']).exists():
-            city = models.City.objects.get(pk=kwargs['pk'])
+            city = self.get_object()
             city.deleted = True
             city.save()
-            return JsonResponse({'detail': 'City has been deleted.'}, status=status.HTTP_200_OK)
+            return JsonResponse({'detail': f'City \'{city.english_name}\' has been deleted.'}, status=status.HTTP_200_OK)
         return JsonResponse({'detail': 'City not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, *args, **kwargs):
         print(request.data)
-        instance = models.City.objects.get(pk=kwargs['pk'])
-        instance.name = request.data['data']['name']
-        instance.save()
         return super().patch(request, *args, **kwargs)
         # instance = models.City.objects.get(pk=kwargs['pk'])
-        # instance.name = request.data['name']
-        # instance.english_name = request.data['english_name']
-        # instance.province = request.data['province']
-        # instance.province = request.data['province']
-        # instance.country = request.data['country']
-        # instance.longitude = request.data['longitude']
-        # instance.iata = request.data['iata']
-        # instance.latitude = request.data['latitude']
-        # instance.latitude = request.data['latitude']
+        # instance.name = request.data['data']['name']
+        # instance.save()
 
 
 class TerminalListCreateView(ListCreateAPIView):
@@ -97,10 +88,10 @@ class TerminalListCreateView(ListCreateAPIView):
     def get_queryset(self):
         if self.request.query_params.get('name') or self.request.query_params.get('english_name'):
             qs = models.Country.objects.filter(Q(name__icontains=self.request.query_params.get('name')) |
-                                               Q(english_name__icontains=self.request.query_params.get('english_name'))) \
-                                               .order_by('-id')
+                                               Q(english_name__icontains=self.request.query_params.get('english_name')))
+
             return qs
-        return models.Terminal.objects.all().order_by('-id')
+        return models.Terminal.objects.all()
 
 
 class TerminalRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
@@ -109,7 +100,7 @@ class TerminalRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 class VehicleListCreateView(ListCreateAPIView):
-    queryset = models.Vehicle.objects.all().order_by('-id')
+    queryset = models.Vehicle.objects.all()
     serializer_class = serializers.VehicleSerializer
     filterset_class = myfilters.VehicleFilter
 
@@ -120,7 +111,7 @@ class VehicleRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 class AccommodationListCreateView(ListCreateAPIView):
-    queryset = models.Accommodation.objects.all().order_by('-id')
+    queryset = models.Accommodation.objects.all()
     serializer_class = serializers.AccommodationSerializer
     filterset_class = myfilters.AccommodationFilter
 
@@ -131,7 +122,7 @@ class AccommodationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 class BankListCreateView(ListCreateAPIView):
-    queryset = models.Bank.objects.all().order_by('-id')
+    queryset = models.Bank.objects.all()
     serializer_class = serializers.BankSerializer
     filterset_class = myfilters.BankFilter
 
@@ -147,8 +138,8 @@ class SubscribeListCreateView(ListCreateAPIView):
     def get_queryset(self):
         if self.request.query_params.get('name') or self.request.query_params.get('english_name'):
             qs = models.Country.objects.filter(Q(name__icontains=self.request.query_params.get('name')) |
-                                               Q(english_name__icontains=self.request.query_params.get('english_name'))) \
-                                               .order_by('-id')
+                                               Q(english_name__icontains=self.request.query_params.get('english_name')))
+
             return qs
         return models.Subscribe.objects.all()
 
@@ -159,7 +150,7 @@ class SubscribeRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 class SupportListCreateView(ListCreateAPIView):
-    queryset = models.SupportType.objects.all().exclude(father=None).order_by('-id')
+    queryset = models.SupportType.objects.all().exclude(father=None)
     serializer_class = serializers.SupportSerializer
     filterset_class = myfilters.SupportFilter
     
@@ -170,7 +161,7 @@ class SupportRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 class CompanyListCreateView(ListCreateAPIView):
-    queryset = models.Company.objects.all().order_by('-id')
+    queryset = models.Company.objects.all()
     serializer_class = serializers.CompanySerializer
     filterset_class = myfilters.CompanyFilter
 

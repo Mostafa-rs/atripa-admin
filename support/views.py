@@ -12,7 +12,7 @@ class SupportListCreateView(ListCreateAPIView):
     def perform_create(self, serializer):
         subjects = self.request.POST.get('subjects')
         if len(subjects) > 2:
-            raise APIException({'error': "Can't assign more than 2 subjects!"})
+            raise APIException({'detail': "Can't assign more than 2 subjects!"})
         instance = serializer.save()
         instance.ip = self.request.POST.get('ip')
         instance.save()

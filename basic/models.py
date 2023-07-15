@@ -1,12 +1,38 @@
+"""
+دیتابیس اپلیکیشن اطلاعات پایه
+برنامه نویس: مصطفی رسولی
+mostafarasooli54@gmail.com
+1402/04/22
+"""
+
+
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+
+
+class PrefixNumber(models.Model):
+    number = models.CharField(max_length=200, null=True, unique=True)
+
+    def __str__(self):
+        return self.number
+
+
+class Continental(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        self.name = self.name.capitalize()
+        return super().save(*args, **kwargs)
 
 
 class Country(models.Model):
     name = models.CharField(max_length=100, unique=True)
     english_name = models.CharField(max_length=45, null=True)
-    continental = models.CharField(max_length=15, null=True)
-    prefix_number = models.CharField(max_length=5, null=True)
+    continental = models.ForeignKey(Continental, models.RESTRICT, null=True)
+    prefix_number = models.ForeignKey(PrefixNumber, models.RESTRICT, null=True)
     iata = models.CharField(max_length=45, null=True)
     description = models.TextField(null=True)
     grs_id = models.IntegerField(null=True)
@@ -15,8 +41,14 @@ class Country(models.Model):
     def __str__(self):
         return f'{self.name} - {self.english_name}'
 
+    def save(self, *args, **kwargs):
+        self.english_name = self.english_name.capitalize()
+        self.iata = self.iata.upper()
+        return super().save(*args, **kwargs)
+
     class Meta:
         verbose_name_plural = 'Countries'
+        ordering = ('-id',)
 
 
 class Province(models.Model):
@@ -28,6 +60,13 @@ class Province(models.Model):
 
     def __str__(self):
         return f'{self.name} - {self.english_name}'
+
+    def save(self, *args, **kwargs):
+        self.english_name = self.english_name.capitalize()
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ('-id',)
 
 
 class City(models.Model):
@@ -50,8 +89,14 @@ class City(models.Model):
     def __str__(self):
         return f'{self.name} - {self.english_name}'
 
+    def save(self, *args, **kwargs):
+        self.english_name = self.english_name.capitalize()
+        self.iata = self.iata.upper()
+        return super().save(*args, **kwargs)
+
     class Meta:
         verbose_name_plural = 'Cities'
+        ordering = ('-id',)
 
 
 class Terminal(models.Model):
@@ -79,32 +124,43 @@ class Terminal(models.Model):
     def __str__(self):
         return f'{self.name} - {self.english_name}'
 
+    def save(self, *args, **kwargs):
+        self.english_name = self.english_name.capitalize()
+        self.iata = self.iata.upper()
+        return super().save(*args, **kwargs)
+
     @property
     def get_type(self):
-        # match self.type:
-        #     case 0:
-        #         return 'فرودگاه'
-        #     case 1:
-        #         return 'پایانه قطار'
-        #     case 2:
-        #         return 'پایانه اتوبوس'
-        #     case 3:
-        #         return 'پایانه تاکسی'
-        #     case 4:
-        #         return 'پابانه کشتی'
-        if self.type == 0:
-            return 'فرودگاه'
-        elif self.type == 1:
-            return 'پایانه قطار'
-        elif self.type == 2:
-            return 'پایانه اتوبوس'
-        elif self.type == 3:
-            return 'پایانه تاکسی'
-        elif self.type == 4:
-            return 'پایانه کشتی'
+        match self.type:
+            case 0:
+                return 'فرودگاه'
+            case 1:
+                return 'پایانه قطار'
+            case 2:
+                return 'پایانه اتوبوس'
+            case 3:
+                return 'پایانه تاکسی'
+            case 4:
+                return 'پابانه کشتی'
+        # if self.type == 0:
+        #     return 'فرودگاه'
+        # elif self.type == 1:
+        #     return 'پایانه قطار'
+        # elif self.type == 2:
+        #     return 'پایانه اتوبوس'
+        # elif self.type == 3:
+        #     return 'پایانه تاکسی'
+        # elif self.type == 4:
+        #     return 'پایانه کشتی'
+
+    class Meta:
+        ordering = ('-id',)
 
 
 class Vehicle(models.Model):
+    class Meta:
+        ordering = ('-id',)
+
     class Type:
         BUS = 1
         TRAIN = 2
@@ -156,6 +212,9 @@ class Accommodation(models.Model):
     description = models.TextField(null=True)
     grs_id = models.IntegerField(default=0, null=True)
     features = models.ManyToManyField('AccommodationFeature', 'ba_features')
+
+    class Meta:
+        ordering = ('-id',)
 
     @property
     def get_type(self):
@@ -220,6 +279,9 @@ class AccommodationFeature(models.Model):
     icon = models.CharField(max_length=45, null=True)
     category = models.ForeignKey('AccommodationFeatureCategory', models.CASCADE, 'baf_category', null=True)
 
+    class Meta:
+        ordering = ('-id',)
+
     def __str__(self):
         return self.name
 
@@ -231,6 +293,9 @@ class AccommodationImage(models.Model):
     caption = models.TextField(null=True)
     grs_name = models.TextField(null=True)
 
+    class Meta:
+        ordering = ('-id',)
+
 
 class AccommodationPOI(models.Model):
     accommodation = models.ForeignKey(Accommodation, models.CASCADE, 'bapoi_accommodation', to_field='id',
@@ -240,12 +305,16 @@ class AccommodationPOI(models.Model):
     walk_time = models.IntegerField(default=0)
     drive_time = models.IntegerField(default=0)
 
+    class Meta:
+        ordering = ('-id',)
+
 
 class AccommodationFeatureCategory(models.Model):
     name = models.CharField(max_length=45, null=True)
 
     class Meta:
         verbose_name_plural = 'Accommodation feature categories'
+        ordering = ('-id',)
 
 
 class AccommodationRoom(models.Model):
@@ -264,6 +333,9 @@ class AccommodationRoom(models.Model):
     deleted_at = models.DateTimeField(null=True)
     features = models.ManyToManyField(AccommodationFeature, 'bar_features')
 
+    class Meta:
+        ordering = ('-id',)
+
 
 class AccommodationRuleCategory(models.Model):
     name = models.CharField(max_length=100, null=True)
@@ -271,6 +343,7 @@ class AccommodationRuleCategory(models.Model):
 
     class Meta:
         verbose_name_plural = 'Accommodation rule categories'
+        ordering = ('-id',)
 
 
 class AccommodationRule(models.Model):
@@ -280,12 +353,18 @@ class AccommodationRule(models.Model):
     accommodation = models.ForeignKey(Accommodation, models.CASCADE, 'baru_accommodation', null=True)
     description = models.TextField(null=True)
 
+    class Meta:
+        ordering = ('-id',)
+
 
 class AccommodationRuleCondition(models.Model):
     rule = models.ForeignKey(AccommodationRule, models.CASCADE, 'barc_rule', null=True)
     name = models.CharField(max_length=100, null=True)
     english_name = models.CharField(max_length=100, null=True)
     value = models.CharField(max_length=100, null=True)
+
+    class Meta:
+        ordering = ('-id',)
 
 
 class AccommodationService(models.Model):
@@ -295,6 +374,9 @@ class AccommodationService(models.Model):
     accommodation = models.ForeignKey(Accommodation, models.CASCADE, 'bas_accommodation', null=True)
     description = models.TextField(null=True)
 
+    class Meta:
+        ordering = ('-id',)
+
 
 class AccommodationServiceCondition(models.Model):
     service = models.ForeignKey(AccommodationService, models.CASCADE, 'basc_service', null=True)
@@ -302,12 +384,18 @@ class AccommodationServiceCondition(models.Model):
     english_name = models.CharField(max_length=100, null=True)
     value = models.CharField(max_length=100, null=True)
 
+    class Meta:
+        ordering = ('-id',)
+
 
 class SiteOption(models.Model):
     option_name = models.TextField(null=True)
     option_value = models.TextField(null=True)
     option_title = models.TextField(null=True)
     option_desc = models.TextField(null=True)
+
+    class Meta:
+        ordering = ('-id',)
 
     class Options:
         USER_CLUB_DASHBOARD_BANNER = "user_club_dashboard_banner"
@@ -320,11 +408,17 @@ class Bank(models.Model):
     color_last = models.CharField(max_length=7, null=True)
     color_code = models.CharField(max_length=200, null=True, blank=True)
 
+    class Meta:
+        ordering = ('-id',)
+
 
 class SupportType(models.Model):
     name = models.CharField(max_length=45, unique=True)
     icon = models.CharField(max_length=45, null=True)
     father = models.ForeignKey('self', models.CASCADE, "bst_father", to_field="id", null=True, blank=True)
+
+    class Meta:
+        ordering = ('-id',)
 
 
 class Subscribe(models.Model):
@@ -336,6 +430,13 @@ class Subscribe(models.Model):
     discount_one_year = models.FloatField(default=0)
     color_code = models.CharField(max_length=7)
 
+    def save(self, *args, **kwargs):
+        self.english_name = self.english_name.capitalize()
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ('-id',)
+
 
 class SubscribeOptions(models.Model):
     subscribe = models.ForeignKey(Subscribe, models.CASCADE, 'bso_subscribe', to_field="id", null=True)
@@ -343,6 +444,7 @@ class SubscribeOptions(models.Model):
 
     class Meta:
         verbose_name_plural = 'Subscribe options'
+        ordering = ('-id',)
 
 
 class Company(models.Model):
@@ -357,6 +459,7 @@ class Company(models.Model):
 
     class Meta:
         verbose_name_plural = 'Companies'
+        ordering = ('-id',)
 
 
 
