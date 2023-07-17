@@ -116,7 +116,3 @@ class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Company
         fields = '__all__'
-
-
-
-

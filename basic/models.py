@@ -37,6 +37,7 @@ class Country(models.Model):
     description = models.TextField(null=True)
     grs_id = models.IntegerField(null=True)
     nationality = models.CharField(max_length=10, null=True)
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.name} - {self.english_name}'
@@ -57,6 +58,7 @@ class Province(models.Model):
     country = models.ForeignKey(Country, models.RESTRICT, 'bp_country', null=True, to_field='id')
     description = models.TextField(null=True)
     grs_id = models.IntegerField(null=True)
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.name} - {self.english_name}'
@@ -120,6 +122,7 @@ class Terminal(models.Model):
     longitude = models.DecimalField(decimal_places=6, max_digits=8, default=0.0)
     address = models.TextField(null=True)
     description = models.TextField(null=True)
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.name} - {self.english_name}'
@@ -171,6 +174,7 @@ class Vehicle(models.Model):
     type = models.IntegerField(default=Type.FLIGHT, validators=[MinValueValidator(1), MaxValueValidator(3)])
     capacity = models.IntegerField(default=1)
     manufacturer = models.CharField(max_length=100, null=True)
+    deleted = models.BooleanField(default=False)
 
     @property
     def get_type(self):
@@ -212,6 +216,7 @@ class Accommodation(models.Model):
     description = models.TextField(null=True)
     grs_id = models.IntegerField(default=0, null=True)
     features = models.ManyToManyField('AccommodationFeature', 'ba_features')
+    deleted = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('-id',)
@@ -407,6 +412,7 @@ class Bank(models.Model):
     color_first = models.CharField(max_length=7, null=True)
     color_last = models.CharField(max_length=7, null=True)
     color_code = models.CharField(max_length=200, null=True, blank=True)
+    deleted = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('-id',)
@@ -416,6 +422,7 @@ class SupportType(models.Model):
     name = models.CharField(max_length=45, unique=True)
     icon = models.CharField(max_length=45, null=True)
     father = models.ForeignKey('self', models.CASCADE, "bst_father", to_field="id", null=True, blank=True)
+    deleted = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('-id',)
@@ -429,6 +436,7 @@ class Subscribe(models.Model):
     discount_six_month = models.FloatField(default=0)
     discount_one_year = models.FloatField(default=0)
     color_code = models.CharField(max_length=7)
+    deleted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.english_name = self.english_name.capitalize()
@@ -456,6 +464,7 @@ class Company(models.Model):
     website = models.TextField()
     address = models.TextField()
     agency_number = models.CharField(max_length=255)
+    deleted = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = 'Companies'
