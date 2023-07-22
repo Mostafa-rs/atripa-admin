@@ -9,13 +9,26 @@ from rest_framework import serializers
 from . import models
 
 
+class ContinentalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Continental
+        fields = ('id', 'name')
+
+
+class PrefixNumberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.PrefixNumber
+        fields = ('id', 'number')
+
+
 class CountrySerializer(serializers.ModelSerializer):
     continental = serializers.StringRelatedField(source='continental.name')
     prefix_number = serializers.StringRelatedField(source='prefix_number.number')
 
     class Meta:
         model = models.Country
-        fields = ('id', 'name', 'english_name', 'continental', 'prefix_number', 'iata', 'description')
+        fields = ('id', 'name', 'english_name', 'prefix_number', 'iata', 'description', 'continental_id', 'continental',
+                  'prefix_number_id')
 
 
 class ProvinceSerializer(serializers.ModelSerializer):

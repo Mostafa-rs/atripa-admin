@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from . import models, serializers
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from django_filters import rest_framework as filters
 from . import filters as myfilters
 from django.db.models import Q
@@ -10,18 +10,37 @@ from rest_framework import status, response
 from rest_framework.views import APIView
 
 
+class ContinentalListView(ListAPIView):
+    queryset = models.Continental.objects.all()
+    serializer_class = serializers.ContinentalSerializer
+
+
+class PrefixNumberListView(ListAPIView):
+    queryset = models.PrefixNumber.objects.all()
+    serializer_class = serializers.PrefixNumberSerializer
+
+
 class CountryListCreateView(ListCreateAPIView):
     serializer_class = serializers.CountrySerializer
     # permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        if self.request.query_params.get('name') or self.request.query_params.get('english_name'):
-            qs = models.Country.objects.filter(Q(name__icontains=self.request.query_params.get('name')) |
-                                               Q(english_name__icontains=self.request.query_params.get('english_name')),
+        search = self.request.query_params.get('search')
+        if search:
+            qs = models.Country.objects.filter(Q(name__icontains=search) | Q(english_name__icontains=search) |
+                                               Q(continental__name__icontains=search) | Q(iata__icontains=search),
                                                deleted=False)
 
             return qs
         return models.Country.objects.filter(deleted=False)
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        continental = models.Continental.objects.get(pk=self.request.data.get('continental_id'))
+        prefix_num = models.PrefixNumber.objects.get(pk=self.request.data.get('prefix_number_id'))
+        instance.continental = continental
+        instance.prefix_number = prefix_num
+        instance.save()
 
 
 class CountryRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
@@ -33,8 +52,23 @@ class CountryRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             country = self.get_object()
             country.deleted = True
             country.save()
-            return JsonResponse({'detail': f'Country \'{country.english_name}\' has been deleted.'}, status=status.HTTP_200_OK)
+            return JsonResponse({'detail': f'Country \'{country.english_name}\' has been deleted.'},
+                                status=status.HTTP_200_OK)
         return JsonResponse({'detail': 'Country not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        continental = request.data.get('continental_id')
+        prefix_num = request.data.get('prefix_number_id')
+        if continental:
+            continental = models.Continental.objects.get(pk=continental)
+            instance.continental = continental
+            instance.save()
+        if prefix_num:
+            prefix_num = models.PrefixNumber.objects.get(pk=prefix_num)
+            instance.prefix_number = prefix_num
+            instance.save()
+        return super().patch(request, *args, **kwargs)
 
 
 class ProvinceListCreateView(ListCreateAPIView):
@@ -42,10 +76,10 @@ class ProvinceListCreateView(ListCreateAPIView):
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
-        if self.request.query_params.get('name') or self.request.query_params.get('english_name'):
-            qs = models.Country.objects.filter(Q(name__icontains=self.request.query_params.get('name')) |
-                                               Q(english_name__icontains=self.request.query_params.get('english_name')),
-                                               deleted=False)
+        search = self.request.query_params.get('search')
+        if search:
+            qs = models.Province.objects.filter(Q(name__icontains=search) | Q(english_name__icontains=search) |
+                                                Q(country__name__icontains=search), deleted=False)
 
             return qs
         return models.Province.objects.filter(deleted=False)
@@ -69,10 +103,10 @@ class CityListCreateView(ListCreateAPIView):
     permission_classes = (AllowAny,)
 
     def get_queryset(self):
-        if self.request.query_params.get('name') or self.request.query_params.get('english_name'):
-            qs = models.City.objects.filter(Q(name__icontains=self.request.query_params.get('name')) |
-                                            Q(english_name__icontains=self.request.query_params.get('english_name')),
-                                            deleted=False)
+        search = self.request.query_params.get('search')
+        if search:
+            qs = models.City.objects.filter(Q(name__icontains=search) | Q(english_name__icontains=search),
+                                                deleted=False)
 
             return qs
         return models.City.objects.filter(deleted=False)
@@ -160,7 +194,8 @@ class AccommodationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             accommodation = self.get_object()
             accommodation.deleted = True
             accommodation.save()
-            return JsonResponse({'detail': f'Accommodation \'{accommodation.name}\' has been deleted.'}, status=status.HTTP_200_OK)
+            return JsonResponse({'detail': f'Accommodation \'{accommodation.name}\' has been deleted.'},
+                                status=status.HTTP_200_OK)
         return JsonResponse({'detail': 'Accommodation not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -168,6 +203,18 @@ class BankListCreateView(ListCreateAPIView):
     queryset = models.Bank.objects.filter(deleted=False)
     serializer_class = serializers.BankSerializer
     filterset_class = myfilters.BankFilter
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search')
+        if search:
+            if search.isalpha():
+                qs = models.Bank.objects.filter(Q(name__icontains=search),
+                                                deleted=False)
+            else:
+                qs = models.Bank.objects.filter(Q(id=search),
+                                                deleted=False)
+            return qs
+        return models.Bank.objects.filter(deleted=False)
 
 
 class BankRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):

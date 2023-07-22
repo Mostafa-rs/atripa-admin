@@ -19,12 +19,13 @@ class PrefixNumber(models.Model):
 
 class Continental(models.Model):
     name = models.CharField(max_length=200, unique=True)
+    english_name = models.CharField(max_length=255, unique=True, null=True, blank=True)
 
     def __str__(self):
         return self.name
     
     def save(self, *args, **kwargs):
-        self.name = self.name.capitalize()
+        self.english_name = self.english_name.capitalize()
         return super().save(*args, **kwargs)
 
 
@@ -176,6 +177,9 @@ class Vehicle(models.Model):
     manufacturer = models.CharField(max_length=100, null=True)
     deleted = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.name
+
     @property
     def get_type(self):
         match self.type:
@@ -220,6 +224,9 @@ class Accommodation(models.Model):
 
     class Meta:
         ordering = ('-id',)
+
+    def __str__(self):
+        return self.name
 
     @property
     def get_type(self):
@@ -298,6 +305,9 @@ class AccommodationImage(models.Model):
     caption = models.TextField(null=True)
     grs_name = models.TextField(null=True)
 
+    def __str__(self):
+        return self.accommodation.name
+
     class Meta:
         ordering = ('-id',)
 
@@ -310,12 +320,18 @@ class AccommodationPOI(models.Model):
     walk_time = models.IntegerField(default=0)
     drive_time = models.IntegerField(default=0)
 
+    def __str__(self):
+        return self.accommodation.name
+
     class Meta:
         ordering = ('-id',)
 
 
 class AccommodationFeatureCategory(models.Model):
     name = models.CharField(max_length=45, null=True)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name_plural = 'Accommodation feature categories'
@@ -338,6 +354,9 @@ class AccommodationRoom(models.Model):
     deleted_at = models.DateTimeField(null=True)
     features = models.ManyToManyField(AccommodationFeature, 'bar_features')
 
+    def __str__(self):
+        return f'{self.accommodation.name} - {self.name}'
+
     class Meta:
         ordering = ('-id',)
 
@@ -345,6 +364,9 @@ class AccommodationRoom(models.Model):
 class AccommodationRuleCategory(models.Model):
     name = models.CharField(max_length=100, null=True)
     english_name = models.CharField(max_length=100, null=True)
+
+    def __str__(self):
+        return f'{self.name} - {self.english_name}'
 
     class Meta:
         verbose_name_plural = 'Accommodation rule categories'
@@ -358,6 +380,9 @@ class AccommodationRule(models.Model):
     accommodation = models.ForeignKey(Accommodation, models.CASCADE, 'baru_accommodation', null=True)
     description = models.TextField(null=True)
 
+    def __str__(self):
+        return f'{self.accommodation.name} - {self.name}'
+
     class Meta:
         ordering = ('-id',)
 
@@ -367,6 +392,9 @@ class AccommodationRuleCondition(models.Model):
     name = models.CharField(max_length=100, null=True)
     english_name = models.CharField(max_length=100, null=True)
     value = models.CharField(max_length=100, null=True)
+
+    def __str__(self):
+        return f'{self.rule.name} - {self.name}'
 
     class Meta:
         ordering = ('-id',)
@@ -379,6 +407,9 @@ class AccommodationService(models.Model):
     accommodation = models.ForeignKey(Accommodation, models.CASCADE, 'bas_accommodation', null=True)
     description = models.TextField(null=True)
 
+    def __str__(self):
+        return f'{self.accommodation.name} - {self.name}'
+
     class Meta:
         ordering = ('-id',)
 
@@ -389,6 +420,9 @@ class AccommodationServiceCondition(models.Model):
     english_name = models.CharField(max_length=100, null=True)
     value = models.CharField(max_length=100, null=True)
 
+    def __str__(self):
+        return f'{self.service.name} - {self.name}'
+
     class Meta:
         ordering = ('-id',)
 
@@ -398,6 +432,9 @@ class SiteOption(models.Model):
     option_value = models.TextField(null=True)
     option_title = models.TextField(null=True)
     option_desc = models.TextField(null=True)
+
+    def __str__(self):
+        return self.option_name
 
     class Meta:
         ordering = ('-id',)
@@ -414,6 +451,9 @@ class Bank(models.Model):
     color_code = models.CharField(max_length=200, null=True, blank=True)
     deleted = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         ordering = ('-id',)
 
@@ -423,6 +463,9 @@ class SupportType(models.Model):
     icon = models.CharField(max_length=45, null=True)
     father = models.ForeignKey('self', models.CASCADE, "bst_father", to_field="id", null=True, blank=True)
     deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         ordering = ('-id',)
@@ -438,6 +481,9 @@ class Subscribe(models.Model):
     color_code = models.CharField(max_length=7)
     deleted = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f'{self.name} - {self.english_name}'
+
     def save(self, *args, **kwargs):
         self.english_name = self.english_name.capitalize()
         return super().save(*args, **kwargs)
@@ -449,6 +495,9 @@ class Subscribe(models.Model):
 class SubscribeOptions(models.Model):
     subscribe = models.ForeignKey(Subscribe, models.CASCADE, 'bso_subscribe', to_field="id", null=True)
     name = models.TextField(null=True)
+
+    def __str__(self):
+        return f'{self.subscribe.name} - {self.name}'
 
     class Meta:
         verbose_name_plural = 'Subscribe options'
@@ -465,6 +514,9 @@ class Company(models.Model):
     address = models.TextField()
     agency_number = models.CharField(max_length=255)
     deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name_plural = 'Companies'

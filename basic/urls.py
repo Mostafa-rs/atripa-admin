@@ -5,12 +5,12 @@ mostafarasooli54@gmail.com
 1402/04/22
 """
 
-
 from django.urls import path
 from . import views
 
-
 urlpatterns = [
+    path('continentals/', views.ContinentalListView.as_view()),
+    path('prefixnumbers/', views.PrefixNumberListView.as_view()),
     path('countries/', views.CountryListCreateView.as_view()),
     path('countries/<int:pk>/', views.CountryRetrieveUpdateDestroyView.as_view()),
     path('provinces/', views.ProvinceListCreateView.as_view()),
