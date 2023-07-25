@@ -87,8 +87,11 @@ class AccommodationSerializer(serializers.ModelSerializer):
     bar_accommodation = AccommodationRoomSerializer(many=True, read_only=True)
     room_counts = serializers.IntegerField(source='room_count', read_only=True)
     province = serializers.CharField(source='province.name', read_only=True)
+    province_id = serializers.CharField(source='province.id', read_only=True)
     country = serializers.CharField(source='country.name', read_only=True)
+    country_id = serializers.IntegerField(source='country.id', read_only=True)
     city = serializers.CharField(source='city.name', read_only=True)
+    city_id = serializers.CharField(source='city.id', read_only=True)
     features = AccommodationFeatureSerializer(many=True, read_only=True)
 
     class Meta:

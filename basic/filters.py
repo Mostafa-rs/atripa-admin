@@ -11,12 +11,29 @@ from . import models
 
 
 class CityFilter(filters.FilterSet):
-    # name = filters.CharFilter(lookup_expr='icontains')
-    # english_name = filters.CharFilter(lookup_expr='icontains')
+    D_S = (
+        ('0', 'older'),
+        ('1', 'newer'),
+    )
+    A_S = (
+        ('0', 'asc alpha'),
+        ('1', 'des alpha'),
+    )
 
-    class Meta:
-        model = models.City
-        fields = ('name', 'english_name')
+    c_n = filters.ModelMultipleChoiceFilter(queryset=models.Country.objects.all(), field_name='country')
+    p_n = filters.ModelMultipleChoiceFilter(queryset=models.Province.objects.all(), field_name='province')
+    c_cap = filters.BooleanFilter(field_name='is_country_capital')
+    p_cap = filters.BooleanFilter(field_name='is_province_capital')
+    d_s = filters.ChoiceFilter(choices=D_S, method='d_s_filter')
+    a_s = filters.ChoiceFilter(choices=D_S, method='a_s_filter')
+
+    def d_s_filter(self, queryset, name, value):
+        data = '-id' if value == self.D_S[1][0] else 'id'
+        return queryset.order_by(data)
+
+    def a_s_filter(self, queryset, name, value):
+        data = '-name' if value == self.A_S[1][0] else 'name'
+        return queryset.order_by(data)
 
 
 class VehicleFilter(filters.FilterSet):

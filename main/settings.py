@@ -29,6 +29,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'basic.apps.BasicConfig',
     'accounts.apps.AccountsConfig',
     'support.apps.SupportConfig',
+    'club.apps.ClubConfig',
 
     # Third-party apps
     'oauth2_provider',

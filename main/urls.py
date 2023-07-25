@@ -23,6 +23,7 @@ api_paths = [
     path('basics/', include('basic.urls')),
     path('accounts/', include('accounts.urls')),
     path('supports/', include('support.urls')),
+    path('clubs/', include('club.urls')),
 ]
 
 urlpatterns = [

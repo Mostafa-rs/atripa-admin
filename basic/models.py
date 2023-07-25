@@ -201,7 +201,7 @@ class Vehicle(models.Model):
 
 class Accommodation(models.Model):
     name = models.CharField(max_length=45, null=True)
-    location = models.CharField(max_length=45, null=True)
+    location = models.CharField(max_length=45, null=True, blank=True)
     type = models.CharField(max_length=100, null=True)
     country = models.ForeignKey(Country, models.RESTRICT, 'ba_country', null=True, to_field='id')
     province = models.ForeignKey(Province, models.RESTRICT, 'ba_province', null=True, to_field='id')
@@ -212,6 +212,7 @@ class Accommodation(models.Model):
     check_in = models.TimeField(null=True, blank=True)
     check_out = models.TimeField(null=True, blank=True)
     star = models.IntegerField(default=0, null=True)
+    commission = models.IntegerField(default=0)
     star_rating = models.FloatField(default=0, null=True)
     reservable = models.BooleanField(default=True)
     is_foreign = models.BooleanField(default=False)
@@ -219,8 +220,9 @@ class Accommodation(models.Model):
     longitude = models.FloatField(default=0, null=True)
     description = models.TextField(null=True)
     grs_id = models.IntegerField(default=0, null=True)
-    features = models.ManyToManyField('AccommodationFeature', 'ba_features')
+    features = models.ManyToManyField('AccommodationFeature', 'ba_features', null=True, blank=True)
     deleted = models.BooleanField(default=False)
+    image = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ('-id',)

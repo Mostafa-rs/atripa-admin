@@ -21,7 +21,7 @@ class UserAdmin(BaseUserAdmin):
         ),
         (
             'permissions',
-            {'fields': ('is_active', 'is_admin', 'last_login')}
+            {'fields': ('is_active', 'is_admin', 'is_superuser', 'groups', 'user_permissions', 'last_login')}
         ),
     )
     add_fieldsets = (
@@ -34,7 +34,12 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ('mobile_number', 'email')
     ordering = ('full_name',)
     readonly_fields = ('last_login',)
-    filter_horizontal = ()
+    filter_horizontal = ('groups', 'user_permissions')
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        is_superuser = request.user.is_superuser
+        if not is_superuser:
+            form.base_fields['is_superuser'].disabled = True
+        return form
 
-admin.site.unregister(Group)

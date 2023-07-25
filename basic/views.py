@@ -22,7 +22,6 @@ class PrefixNumberListView(ListAPIView):
 
 class CountryListCreateView(ListCreateAPIView):
     serializer_class = serializers.CountrySerializer
-    # permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         search = self.request.query_params.get('search')
@@ -94,13 +93,15 @@ class ProvinceRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             province = self.get_object()
             province.deleted = True
             province.save()
-            return JsonResponse({'detail': f'Province \'{province.english_name}\' has been deleted.'}, status=status.HTTP_200_OK)
+            return JsonResponse({'detail': f'Province \'{province.english_name}\' has been deleted.'},
+                                status=status.HTTP_200_OK)
         return JsonResponse({'detail': 'Province not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CityListCreateView(ListCreateAPIView):
     serializer_class = serializers.CitySerializer
     permission_classes = (AllowAny,)
+    filterset_class = myfilters.CityFilter
 
     def get_queryset(self):
         search = self.request.query_params.get('search')
@@ -123,25 +124,21 @@ class CityRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             city = self.get_object()
             city.deleted = True
             city.save()
-            return JsonResponse({'detail': f'City \'{city.english_name}\' has been deleted.'}, status=status.HTTP_200_OK)
+            return JsonResponse({'detail': f'City \'{city.english_name}\' has been deleted.'},
+                                status=status.HTTP_200_OK)
         return JsonResponse({'detail': 'City not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-    def patch(self, request, *args, **kwargs):
-        print(request.data)
-        return super().patch(request, *args, **kwargs)
-        # instance = models.City.objects.get(pk=kwargs['pk'])
-        # instance.name = request.data['data']['name']
-        # instance.save()
 
 
 class TerminalListCreateView(ListCreateAPIView):
     serializer_class = serializers.TerminalSerializer
 
     def get_queryset(self):
-        if self.request.query_params.get('name') or self.request.query_params.get('english_name'):
-            qs = models.Country.objects.filter(Q(name__icontains=self.request.query_params.get('name')) |
-                                               Q(english_name__icontains=self.request.query_params.get('english_name')),
-                                               deleted=False)
+        search = self.request.query_params.get('search')
+        if search:
+            qs = models.Terminal.objects.filter(Q(name__icontains=search) | Q(english_name__icontains=search) |
+                                                Q(country__name__icontains=search) | Q(city__name__icontains=search) |
+                                                Q(province__name__icontains=search) | Q(iata__icontains=search)
+                                                , deleted=False)
 
             return qs
         return models.Terminal.objects.filter(deleted=False)
@@ -156,14 +153,23 @@ class TerminalRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             terminal = self.get_object()
             terminal.deleted = True
             terminal.save()
-            return JsonResponse({'detail': f'Terminal \'{terminal.english_name}\' has been deleted.'}, status=status.HTTP_200_OK)
+            return JsonResponse({'detail': f'Terminal \'{terminal.english_name}\' has been deleted.'},
+                                status=status.HTTP_200_OK)
         return JsonResponse({'detail': 'Terminal not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class VehicleListCreateView(ListCreateAPIView):
-    queryset = models.Vehicle.objects.filter(deleted=False)
     serializer_class = serializers.VehicleSerializer
     filterset_class = myfilters.VehicleFilter
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search')
+        if search:
+            qs = models.Vehicle.objects.filter(Q(name__icontains=search) | Q(manufacturer__icontains=search),
+                                               deleted=False)
+
+            return qs
+        return models.Vehicle.objects.filter(deleted=False)
 
 
 class VehicleRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
@@ -180,9 +186,18 @@ class VehicleRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 class AccommodationListCreateView(ListCreateAPIView):
-    queryset = models.Accommodation.objects.filter(deleted=False)
     serializer_class = serializers.AccommodationSerializer
     filterset_class = myfilters.AccommodationFilter
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search')
+        if search:
+            qs = models.Accommodation.objects.filter(Q(name__icontains=search) | Q(country__name__icontains=search)
+                                                | Q(city__name__icontains=search) | Q(province__name__icontains=search)
+                                                , deleted=False)
+
+            return qs
+        return models.Accommodation.objects.filter(deleted=False)
 
 
 class AccommodationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
@@ -198,9 +213,20 @@ class AccommodationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
                                 status=status.HTTP_200_OK)
         return JsonResponse({'detail': 'Accommodation not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+    def patch(self, request, *args, **kwargs):
+        print(self.request.data)
+        instance = self.get_object()
+        country = models.Country.objects.get(pk=self.request.data.get('country_id'))
+        province = models.Province.objects.get(pk=self.request.data.get('province_id'))
+        city = models.City.objects.get(pk=self.request.data.get('city_id'))
+        instance.country = country
+        instance.province = province
+        instance.city = city
+        instance.save()
+        return super().patch(request, *args, **kwargs)
+
 
 class BankListCreateView(ListCreateAPIView):
-    queryset = models.Bank.objects.filter(deleted=False)
     serializer_class = serializers.BankSerializer
     filterset_class = myfilters.BankFilter
 
@@ -234,10 +260,10 @@ class SubscribeListCreateView(ListCreateAPIView):
     serializer_class = serializers.SubscribeSerializer
 
     def get_queryset(self):
-        if self.request.query_params.get('name') or self.request.query_params.get('english_name'):
-            qs = models.Country.objects.filter(Q(name__icontains=self.request.query_params.get('name')) |
-                                               Q(english_name__icontains=self.request.query_params.get('english_name')),
-                                               deleted=False)
+        search = self.request.query_params.get('search')
+        if search:
+            qs = models.Subscribe.objects.filter(Q(name__icontains=search) | Q(english_name__icontains=search),
+                                                 deleted=False)
 
             return qs
         return models.Subscribe.objects.filter(deleted=False)
@@ -252,14 +278,23 @@ class SubscribeRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             subscribe = self.get_object()
             subscribe.deleted = True
             subscribe.save()
-            return JsonResponse({'detail': f'Subscribe \'{subscribe.english_name}\' has been deleted.'}, status=status.HTTP_200_OK)
+            return JsonResponse({'detail': f'Subscribe \'{subscribe.english_name}\' has been deleted.'},
+                                status=status.HTTP_200_OK)
         return JsonResponse({'detail': 'Subscribe not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class SupportListCreateView(ListCreateAPIView):
-    queryset = models.SupportType.objects.filter(deleted=False).exclude(father=None)
     serializer_class = serializers.SupportSerializer
     filterset_class = myfilters.SupportFilter
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search')
+        if search:
+            qs = models.SupportType.objects.filter(Q(name__icontains=search) | Q(father__name__icontains=search),
+                                                   deleted=False)
+
+            return qs
+        return models.SupportType.objects.filter(deleted=False).exclude(father=None)
     
 
 class SupportRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
@@ -276,9 +311,17 @@ class SupportRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 class CompanyListCreateView(ListCreateAPIView):
-    queryset = models.Company.objects.filter(deleted=False)
     serializer_class = serializers.CompanySerializer
     filterset_class = myfilters.CompanyFilter
+
+    def get_queryset(self):
+        search = self.request.query_params.get('search')
+        if search:
+            qs = models.Company.objects.filter(Q(name__icontains=search) | Q(ceo__icontains=search),
+                                               deleted=False)
+
+            return qs
+        return models.Company.objects.filter(deleted=False)
 
 
 class CompanyRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
