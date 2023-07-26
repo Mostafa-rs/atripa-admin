@@ -7,6 +7,7 @@ from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.http import JsonResponse
 from rest_framework import status, response
+from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, TokenHasScope
 from rest_framework.views import APIView
 
 
@@ -72,7 +73,6 @@ class CountryRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 class ProvinceListCreateView(ListCreateAPIView):
     serializer_class = serializers.ProvinceSerializer
-    permission_classes = (AllowAny,)
 
     def get_queryset(self):
         search = self.request.query_params.get('search')
@@ -100,7 +100,6 @@ class ProvinceRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 class CityListCreateView(ListCreateAPIView):
     serializer_class = serializers.CitySerializer
-    permission_classes = (AllowAny,)
     filterset_class = myfilters.CityFilter
 
     def get_queryset(self):
@@ -116,7 +115,6 @@ class CityListCreateView(ListCreateAPIView):
 class CityRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = models.City.objects.filter(deleted=False)
     serializer_class = serializers.CitySerializer
-    permission_classes = [AllowAny]
     http_method_names = ('get', 'patch', 'delete', 'head', 'options')
 
     def delete(self, request, *args, **kwargs):

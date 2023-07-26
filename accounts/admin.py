@@ -10,12 +10,12 @@ from django_jalali.admin.filters import JDateFieldListFilter
 class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
-    list_display = ('email', 'mobile_number', 'is_admin')
+    list_display = ('email', 'mobile_number', 'is_admin', 'is_superuser')
     list_filter = ('is_admin',)
     fieldsets = (
         (
             None,
-            {'fields': ('email', 'mobile_number', 'full_name', 'en_full_name', 'b_day', 'static_number',
+            {'fields': ('email', 'mobile_number', 'full_name', 'en_full_name', 'subscribe', 'b_day', 'static_number',
                         'passport_no', 'fathers_name', 'national_id', 'postal_code', 'passport_exp', 'address', 'image',
                         'password')}
         ),

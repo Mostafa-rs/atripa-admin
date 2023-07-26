@@ -16,8 +16,9 @@ from .utils import path_and_rename
 class User(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=255)
     en_full_name = models.CharField(max_length=255)
+    subscribe = models.ForeignKey('basic.Subscribe', on_delete=models.SET_NULL, null=True, blank=True)
     email = models.EmailField(max_length=255, unique=True)
-    b_day = jmodels.jDateField(null=True, blank=True)
+    b_day = models.CharField(null=True, blank=True, max_length=200)
     static_number = models.CharField(max_length=40, null=True, blank=True)
     mobile_number = models.CharField(max_length=30, null=True, blank=True)
     passport_no = models.CharField(max_length=200, null=True, blank=True)

@@ -11,9 +11,11 @@ from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
+    subscribe = serializers.StringRelatedField(source='subscribe.name', read_only=True)
+
     class Meta:
         model = User
-        exclude = ('password', 'last_login', )
+        exclude = ('password', 'last_login',)
 
 
 
