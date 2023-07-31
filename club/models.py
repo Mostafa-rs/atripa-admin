@@ -7,7 +7,7 @@ class Reward(models.Model):
         NORMAL = 0
         PERCENT = 1
 
-    name = models.CharField(max_length=45, null=True)
+    name = models.CharField(max_length=45, null=True,)
     type = models.IntegerField(default=Type.NORMAL, validators=[MinValueValidator(0), MaxValueValidator(1)])
     amount = models.IntegerField(default=0)
     max_amount = models.PositiveIntegerField(default=0)
@@ -23,6 +23,8 @@ class Reward(models.Model):
     icon = models.CharField(max_length=100, null=True)
     category = models.ForeignKey('club.RewardCategory', models.CASCADE, 'cr_category', to_field='id', null=True)
     creator = models.ForeignKey('accounts.User', models.CASCADE, 'cr_creator', to_field='id', null=True)
+    description = models.TextField(null=True, blank=True)
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -30,9 +32,9 @@ class Reward(models.Model):
     @property
     def get_type(self):
         match self.type:
-            case 1:
+            case 0:
                 return 'تخفیف نقدی'
-            case 2:
+            case 1:
                 return 'تخفیف درصدی'
             case _:
                 return 'نامشخص'
@@ -41,13 +43,16 @@ class Reward(models.Model):
 class RewardCategory(models.Model):
     name = models.CharField(max_length=45, null=True)
     icon = models.CharField(max_length=100, null=True)
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
 
 
 class RewardUsage(models.Model):
-    reward = models.ForeignKey('club.Reward', models.CASCADE, 'cru_reward', to_field='id', null=True)
+    # reward = models.ForeignKey('club.Reward', models.CASCADE, 'cru_reward', to_field='id', null=True)
+    reward = models.OneToOneField('club.Reward', on_delete=models.CASCADE, related_name='cru_reward', null=True,
+                                  blank=True)
     all = models.BooleanField(default=False)
     all_transport = models.BooleanField(default=False)
     accommodation_all = models.BooleanField(default=False)
@@ -73,6 +78,7 @@ class RewardUsage(models.Model):
     subscribe_high_three_month = models.BooleanField(default=False)
     subscribe_high_six_month = models.BooleanField(default=False)
     subscribe_high_one_year = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.reward.name
@@ -81,6 +87,7 @@ class RewardUsage(models.Model):
 class RewardUsageGuide(models.Model):
     reward = models.ForeignKey('club.Reward', models.CASCADE, 'crug_reward', to_field='id', null=True)
     guide = models.TextField(null=True)
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.reward.name
@@ -89,6 +96,7 @@ class RewardUsageGuide(models.Model):
 class RewardRule(models.Model):
     reward = models.ForeignKey('club.Reward', models.CASCADE, 'crr_reward', to_field='id', null=True)
     rule = models.TextField(null=True)
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.reward.name
@@ -106,5 +114,6 @@ class TopFiveUsers(models.Model):
     user_point_four = models.IntegerField(default=0)
     user_point_five = models.IntegerField(default=0)
     date = models.DateField(null=True)
+    deleted = models.BooleanField(default=False)
 
 

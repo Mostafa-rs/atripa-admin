@@ -38,8 +38,9 @@ class RewardUsageSerializer(serializers.ModelSerializer):
 
 
 class RewardListSerializer(serializers.ModelSerializer):
-    category = RewardCategorySerializer()
-    usages = RewardUsageSerializer(source="cru_reward", many=True, read_only=True)
+    category = serializers.StringRelatedField(source='category.name')
+    usages = RewardUsageSerializer(source="cru_reward", read_only=True)
+    rule = RewardRuleSerializer(read_only=True, source='crr_reward')
     # category = serializers.SerializerMethodField()
     #
     # def get_category(self, obj):
@@ -47,21 +48,23 @@ class RewardListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Reward
-        fields = ("id", "name", "type", "category", "amount", "max_amount", "required_point", "avatar", "date_validate",
-                  "icon", 'get_type', 'usage_validate_per_user', 'usage_validate_total', 'usages')
+        fields = ("id", "name", "type", 'desc_title', 'rule', "category", "amount", "max_amount", "required_point",
+                  "avatar", "date_validate", "icon", 'get_type', 'usage_validate_per_user', 'usage_validate_total',
+                  'usages', 'category_id')
 
 
 class RewardSerializer(serializers.ModelSerializer):
-    category = serializers.SerializerMethodField()
+    category = serializers.StringRelatedField(source='category.name')
     guides = RewardUsageGuideSerializer(many=True, read_only=True)
-    rules = RewardRuleSerializer(many=True, read_only=True)
-    usages = RewardUsageSerializer(many=True, read_only=True)
+    rules = RewardRuleSerializer(many=True, read_only=True, source='crr_reward')
+    usages = RewardUsageSerializer(read_only=True, source='cru_reward',)
 
-    def get_category(self, obj):
-        return RewardCategorySerializer(instance=obj.category).data
+    # def get_category(self, obj):
+    #     return RewardCategorySerializer(instance=obj.category).data
 
     class Meta:
         model = models.Reward
         fields = ("id", "name", "type", "category", "guides", "rules", "usages", "amount", "max_amount", "avatar",
-                  "required_point", "desc_title", "desc", "date_validate", "icon", 'usages')
+                  "required_point", "desc_title", "desc", "date_validate", "icon", 'description',
+                  'usage_validate_per_user', 'usage_validate_total', 'category_id', 'get_type')
 
