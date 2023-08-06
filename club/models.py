@@ -85,7 +85,7 @@ class RewardUsage(models.Model):
 
 
 class RewardUsageGuide(models.Model):
-    reward = models.ForeignKey('club.Reward', models.CASCADE, 'crug_reward', to_field='id', null=True)
+    reward = models.OneToOneField('club.Reward', models.CASCADE, related_name='crug_reward', null=True)
     guide = models.TextField(null=True)
     deleted = models.BooleanField(default=False)
 
@@ -94,7 +94,7 @@ class RewardUsageGuide(models.Model):
 
 
 class RewardRule(models.Model):
-    reward = models.ForeignKey('club.Reward', models.CASCADE, 'crr_reward', to_field='id', null=True)
+    reward = models.OneToOneField('club.Reward', models.CASCADE, related_name='crr_reward', null=True)
     rule = models.TextField(null=True)
     deleted = models.BooleanField(default=False)
 

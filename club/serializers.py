@@ -40,7 +40,7 @@ class RewardUsageSerializer(serializers.ModelSerializer):
 class RewardListSerializer(serializers.ModelSerializer):
     category = serializers.StringRelatedField(source='category.name')
     usages = RewardUsageSerializer(source="cru_reward", read_only=True)
-    rule = RewardRuleSerializer(read_only=True, source='crr_reward')
+    rule = RewardRuleSerializer(read_only=True, source='crr_reward', many=False)
     # category = serializers.SerializerMethodField()
     #
     # def get_category(self, obj):
@@ -55,8 +55,8 @@ class RewardListSerializer(serializers.ModelSerializer):
 
 class RewardSerializer(serializers.ModelSerializer):
     category = serializers.StringRelatedField(source='category.name')
-    guides = RewardUsageGuideSerializer(many=True, read_only=True)
-    rules = RewardRuleSerializer(many=True, read_only=True, source='crr_reward')
+    guides = RewardUsageGuideSerializer(read_only=True, source='crug_reward')
+    rules = RewardRuleSerializer(read_only=True, source='crr_reward')
     usages = RewardUsageSerializer(read_only=True, source='cru_reward',)
 
     # def get_category(self, obj):

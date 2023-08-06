@@ -1,16 +1,12 @@
-from django.shortcuts import render
 from rest_framework.response import Response
-
 from . import models, serializers
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from django_filters import rest_framework as filters
 from . import filters as myfilters
 from django.db.models import Q
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.http import JsonResponse
-from rest_framework import status, response
+from rest_framework.permissions import AllowAny
+from rest_framework import status
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, TokenHasScope
-from rest_framework.views import APIView
 
 
 class ContinentalListView(ListAPIView):
@@ -38,8 +34,8 @@ class CountryListCreateView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         instance = serializer.save()
-        continental = models.Continental.objects.get(pk=self.request.data.get('continental_id'))
-        prefix_num = models.PrefixNumber.objects.get(pk=self.request.data.get('prefix_number_id'))
+        continental = models.Continental.objects.get(pk=self.request.data.get('continental'))
+        prefix_num = models.PrefixNumber.objects.get(pk=self.request.data.get('prefix_number'))
         instance.continental = continental
         instance.prefix_number = prefix_num
         instance.save()
@@ -54,14 +50,14 @@ class CountryRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             country = self.get_object()
             country.deleted = True
             country.save()
-            return JsonResponse({'detail': f'Country \'{country.english_name}\' has been deleted.'},
+            return Response({'detail': f'Country \'{country.english_name}\' has been deleted.'},
                                 status=status.HTTP_200_OK)
-        return JsonResponse({'detail': 'Country not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Country not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
-        continental = request.data.get('continental_id')
-        prefix_num = request.data.get('prefix_number_id')
+        continental = request.data.get('continental')
+        prefix_num = request.data.get('prefix_number')
         if continental:
             continental = models.Continental.objects.get(pk=continental)
             instance.continental = continental
@@ -84,7 +80,7 @@ class ProvinceListCreateView(ListCreateAPIView):
 
             return qs
         return models.Province.objects.filter(deleted=False)
-    
+
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -104,9 +100,9 @@ class ProvinceRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             province = self.get_object()
             province.deleted = True
             province.save()
-            return JsonResponse({'detail': f'Province \'{province.english_name}\' has been deleted.'},
-                                status=status.HTTP_200_OK)
-        return JsonResponse({'detail': 'Province not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': f'Province \'{province.english_name}\' has been deleted.'},
+                            status=status.HTTP_200_OK)
+        return Response({'detail': 'Province not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -137,16 +133,15 @@ class CityRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = models.City.objects.filter(deleted=False)
     serializer_class = serializers.CitySerializer
     http_method_names = ('get', 'patch', 'delete', 'head', 'options')
-    permission_classes = (AllowAny,)
 
     def delete(self, request, *args, **kwargs):
         if models.City.objects.filter(pk=kwargs['pk']).exists():
             city = self.get_object()
             city.deleted = True
             city.save()
-            return JsonResponse({'detail': f'City \'{city.english_name}\' has been deleted.'},
+            return Response({'detail': f'City \'{city.english_name}\' has been deleted.'},
                                 status=status.HTTP_200_OK)
-        return JsonResponse({'detail': 'City not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'City not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -187,9 +182,9 @@ class TerminalRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             terminal = self.get_object()
             terminal.deleted = True
             terminal.save()
-            return JsonResponse({'detail': f'Terminal \'{terminal.english_name}\' has been deleted.'},
+            return Response({'detail': f'Terminal \'{terminal.english_name}\' has been deleted.'},
                                 status=status.HTTP_200_OK)
-        return JsonResponse({'detail': 'Terminal not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Terminal not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class VehicleListCreateView(ListCreateAPIView):
@@ -215,8 +210,8 @@ class VehicleRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             vehicle = self.get_object()
             vehicle.deleted = True
             vehicle.save()
-            return JsonResponse({'detail': f'Vehicle \'{vehicle.name}\' has been deleted.'}, status=status.HTTP_200_OK)
-        return JsonResponse({'detail': 'Vehicle not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': f'Vehicle \'{vehicle.name}\' has been deleted.'}, status=status.HTTP_200_OK)
+        return Response({'detail': 'Vehicle not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class AccommodationListCreateView(ListCreateAPIView):
@@ -244,9 +239,9 @@ class AccommodationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             accommodation = self.get_object()
             accommodation.deleted = True
             accommodation.save()
-            return JsonResponse({'detail': f'Accommodation \'{accommodation.name}\' has been deleted.'},
+            return Response({'detail': f'Accommodation \'{accommodation.name}\' has been deleted.'},
                                 status=status.HTTP_200_OK)
-        return JsonResponse({'detail': 'Accommodation not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Accommodation not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, *args, **kwargs):
         print(request.data)
@@ -287,8 +282,8 @@ class BankRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             bank = self.get_object()
             bank.deleted = True
             bank.save()
-            return JsonResponse({'detail': f'Bank \'{bank.name}\' has been deleted.'}, status=status.HTTP_200_OK)
-        return JsonResponse({'detail': 'Bank not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': f'Bank \'{bank.name}\' has been deleted.'}, status=status.HTTP_200_OK)
+        return Response({'detail': 'Bank not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class SubscribeListCreateView(ListCreateAPIView):
@@ -313,9 +308,9 @@ class SubscribeRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             subscribe = self.get_object()
             subscribe.deleted = True
             subscribe.save()
-            return JsonResponse({'detail': f'Subscribe \'{subscribe.english_name}\' has been deleted.'},
+            return Response({'detail': f'Subscribe \'{subscribe.english_name}\' has been deleted.'},
                                 status=status.HTTP_200_OK)
-        return JsonResponse({'detail': 'Subscribe not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'detail': 'Subscribe not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class SupportListCreateView(ListCreateAPIView):
@@ -338,11 +333,11 @@ class SupportRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         if models.SupportType.objects.filter(pk=kwargs['pk']).exists():
-            city = self.get_object()
-            city.deleted = True
-            city.save()
-            return JsonResponse({'detail': f'SupportType \'{city.name}\' has been deleted.'}, status=status.HTTP_200_OK)
-        return JsonResponse({'detail': 'SupportType not found.'}, status=status.HTTP_404_NOT_FOUND)
+            support = self.get_object()
+            support.deleted = True
+            support.save()
+            return Response({'detail': f'SupportType \'{support.name}\' has been deleted.'}, status=status.HTTP_200_OK)
+        return Response({'detail': 'SupportType not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CompanyListCreateView(ListCreateAPIView):
@@ -368,5 +363,5 @@ class CompanyRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             company = self.get_object()
             company.deleted = True
             company.save()
-            return JsonResponse({'detail': f'Company \'{company.name}\' has been deleted.'}, status=status.HTTP_200_OK)
-        return JsonResponse({'detail': 'Company not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': f'Company \'{company.name}\' has been deleted.'}, status=status.HTTP_200_OK)
+        return Response({'detail': 'Company not found.'}, status=status.HTTP_404_NOT_FOUND)

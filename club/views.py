@@ -9,7 +9,6 @@ from rest_framework.permissions import AllowAny
 class RewardListCreateView(ListCreateAPIView):
     queryset = models.Reward.objects.all().exclude(deleted=True)
     serializer_class = serializers.RewardListSerializer
-    permission_classes = (AllowAny,)
 
     def perform_create(self, serializer):
         print(self.request.data)
@@ -79,7 +78,6 @@ class RewardListCreateView(ListCreateAPIView):
 class RewardRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     queryset = models.Reward.objects.all()
     serializer_class = serializers.RewardSerializer
-    permission_classes = (AllowAny,)
     
     def patch(self, request, *args, **kwargs):
         new_usages = request.data.get('usages')
@@ -159,4 +157,8 @@ class RewardRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 class RewardCategoryListCreateView(ListCreateAPIView):
     queryset = models.RewardCategory.objects.all().exclude(deleted=True)
     serializer_class = serializers.RewardCategorySerializer
-    permission_classes = (AllowAny,)
+
+
+class RewardCategoryRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    queryset = models.RewardCategory.objects.all().exclude(deleted=True)
+    serializer_class = serializers.RewardCategorySerializer

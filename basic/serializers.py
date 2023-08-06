@@ -59,7 +59,7 @@ class TerminalSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Terminal
         fields = ('id', 'name', 'english_name', 'terminal_type', 'country', 'province', 'city', 'popularity', 'iata',
-                  'is_international')
+                  'is_international', 'type', 'longitude', 'latitude', 'address', 'description')
 
 
 class VehicleSerializer(serializers.ModelSerializer):
@@ -70,15 +70,17 @@ class VehicleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class AccommodationRoomSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.AccommodationRoom
-        fields = '__all__'
-
-
 class AccommodationFeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.AccommodationFeature
+        fields = '__all__'
+
+
+class AccommodationRoomSerializer(serializers.ModelSerializer):
+    features = AccommodationFeatureSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = models.AccommodationRoom
         fields = '__all__'
 
 

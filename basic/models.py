@@ -139,13 +139,13 @@ class Terminal(models.Model):
             case 0:
                 return 'فرودگاه'
             case 1:
-                return 'پایانه قطار'
+                return 'راه آهن'
             case 2:
                 return 'پایانه اتوبوس'
             case 3:
-                return 'پایانه تاکسی'
+                return 'ایستگاه تاکسی'
             case 4:
-                return 'پابانه کشتی'
+                return 'لنگرگاه'
         # if self.type == 0:
         #     return 'فرودگاه'
         # elif self.type == 1:
@@ -267,7 +267,7 @@ class Accommodation(models.Model):
                 return 'اقامتگاه مسکونی'
 
             case 'traveler_house':
-                return 'خانه مسافر'
+                return 'مسافرخانه'
 
             case _:
                 return 'نامشخص'

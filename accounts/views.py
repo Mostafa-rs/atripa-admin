@@ -17,12 +17,7 @@ from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, Token
 
 class UserListCreateView(ListCreateAPIView):
     queryset = User.objects.all()
-    permission_classes = (AdminPermission, TokenHasReadWriteScope)
     serializer_class = UserSerializer
-    
-    # def get(self, request, *args, **kwargs):
-    #     print(request.headers)
-    #     return super().get(request, *args, **kwargs)
 
 
 class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
