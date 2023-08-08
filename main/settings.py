@@ -135,15 +135,15 @@ MEDIA_ROOT = BASE_DIR / 'media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 # DRF configs
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'utils.myPermissions.AdminPermission',
-        'oauth2_provider.contrib.rest_framework.TokenHasReadWriteScope'
+        'rest_framework.permissions.AllowAny',
+        # 'utils.myPermissions.AdminPermission',
+        # 'oauth2_provider.contrib.rest_framework.TokenHasReadWriteScope'
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',

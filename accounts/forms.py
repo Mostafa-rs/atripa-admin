@@ -1,7 +1,7 @@
 """
-فرم های اپلیکیشن کاربران
-برنامه نویس: مصطفی رسولی
-mostafarasooli54@gmail.com
+Account forms
+author: Mostafa Rasouli
+contact: mostafarasooli54@gmail.com
 1402/04/22
 """
 

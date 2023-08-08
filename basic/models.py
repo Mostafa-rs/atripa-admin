@@ -220,7 +220,7 @@ class Accommodation(models.Model):
     longitude = models.FloatField(default=0, null=True)
     description = models.TextField(null=True)
     grs_id = models.IntegerField(default=0, null=True)
-    features = models.ManyToManyField('AccommodationFeature', 'ba_features', null=True, blank=True)
+    features = models.ManyToManyField('AccommodationFeature', 'ba_features', blank=True)
     deleted = models.BooleanField(default=False)
     image = models.TextField(null=True, blank=True)
 

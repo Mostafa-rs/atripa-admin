@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from accounts import models as accounts_models
+# from accounts import models as accounts_models
 from . import models
 
 
@@ -21,15 +21,15 @@ class SupportSerializer(serializers.ModelSerializer):
                   'modified', 'get_subjects', 'date_time', 'date_time_persian', 'modified_persian')
 
 
-class UserChatSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = accounts_models.User
-        fields = ('id', 'full_name', 'is_admin')
+# class UserChatSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = accounts_models.User
+#         fields = ('id', 'full_name', 'is_admin')
 
 
 class ChatSerializer(serializers.ModelSerializer):
-    sender = UserChatSerializer(read_only=True)
-    receiver = UserChatSerializer(read_only=True)
+    # sender = UserChatSerializer(read_only=True)
+    # receiver = UserChatSerializer(read_only=True)
 
     class Meta:
         model = models.Chat

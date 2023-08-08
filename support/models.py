@@ -64,7 +64,7 @@ class Chat(models.Model):
     sent_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.support.creator.full_name}'
+        return f'{self.support.creator}'
 
     def sent_at_persian(self):
         result = str(jdatetime.datetime.fromgregorian(datetime=self.sent_at))
