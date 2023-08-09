@@ -15,11 +15,24 @@ class UserListSerializer(serializers.ModelSerializer):
 
 
 class UserRetrieveSerializer(serializers.ModelSerializer):
-    full_name_persian = serializers.CharField(source='get_full_name_persian')
-    full_name_english = serializers.CharField(source='get_full_name_english')
+    # full_name_persian = serializers.CharField(source='get_full_name_persian')
+    # full_name_english = serializers.CharField(source='get_full_name_english')
+    birthdate_persian = serializers.CharField(source='get_birthdate_persian', read_only=True)
+    passport_expiry_date_persian = serializers.CharField(source='get_passport_expiry_date_persian', read_only=True)
 
     class Meta:
         model = models.User
         exclude = ('password',)
 
+
+class UserWalletSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.User
+        fields = ('id', 'balance', 'income', 'spend')
+
+
+class UserTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserTransaction
+        fields = '__all__'
 

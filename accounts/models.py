@@ -4,7 +4,7 @@
     Email: mostafarasooli54@gmail.com
     Last Modified: 2023/08/07
 """
-
+import jdatetime
 # System
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -57,6 +57,16 @@ class User(AbstractUser):
     postal_code = models.CharField(max_length=10, null=True, blank=True)
 
     @property
+    def get_birthdate_persian(self):
+        result = str(jdatetime.date.fromgregorian(date=self.birthdate))
+        return result
+
+    @property
+    def get_passport_expiry_date_persian(self):
+        result = str(jdatetime.date.fromgregorian(date=self.passport_expiry_date))
+        return result
+
+    @property
     def get_full_name_persian(self):
         return f'{self.first_name} {self.last_name}'
 
@@ -105,6 +115,9 @@ class User(AbstractUser):
             _spend = 0
 
         return _spend
+
+    def balance(self):
+        return self.income - self.spend
 
 
 class Agency(models.Model):
