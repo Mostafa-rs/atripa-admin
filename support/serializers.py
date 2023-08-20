@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+import accounts.serializers
 # from accounts import models as accounts_models
 from . import models
 
@@ -13,7 +14,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 class SupportSerializer(serializers.ModelSerializer):
     subjects = SubjectSerializer(many=True, read_only=True)
     viewer = serializers.StringRelatedField(source='viewer.full_name')
-    creator = serializers.StringRelatedField(source='creator.full_name')
+    creator = serializers.StringRelatedField(source='creator.get_full_name_persian')
 
     class Meta:
         model = models.Support
@@ -28,8 +29,8 @@ class SupportSerializer(serializers.ModelSerializer):
 
 
 class ChatSerializer(serializers.ModelSerializer):
-    # sender = UserChatSerializer(read_only=True)
-    # receiver = UserChatSerializer(read_only=True)
+    sender = accounts.serializers.UserRetrieveSerializer(read_only=True)
+    receiver = accounts.serializers.UserRetrieveSerializer(read_only=True)
 
     class Meta:
         model = models.Chat

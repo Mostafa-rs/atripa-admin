@@ -449,7 +449,7 @@ class Bank(models.Model):
     name = models.CharField(max_length=45, null=True)
     logo = models.TextField(null=True)
     color_first = models.CharField(max_length=7, null=True)
-    color_last = models.CharField(max_length=7, null=True)
+    color_last = models.CharField(max_length=17, null=True)
     color_code = models.CharField(max_length=200, null=True, blank=True)
     deleted = models.BooleanField(default=False)
 

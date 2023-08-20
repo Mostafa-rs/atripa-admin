@@ -1,7 +1,5 @@
 import jdatetime
-from django.shortcuts import render
 from rest_framework import generics
-from rest_framework.response import Response
 from . import serializers, models
 
 
@@ -35,9 +33,38 @@ class UserUpdateView(generics.RetrieveUpdateAPIView):
 
 class UserFinanceListView(generics.ListAPIView):
     serializer_class = serializers.UserTransactionSerializer
-    queryset = models.UserTransaction.objects.all()
+
+    def get_queryset(self):
+        return models.UserTransaction.objects.filter(user_id=self.kwargs['pk'])
 
 
 class UserWalletRetrieveView(generics.RetrieveAPIView):
     serializer_class = serializers.UserWalletSerializer
     queryset = models.User.objects.all()
+
+
+class UserBankAccountsListView(generics.ListAPIView):
+    serializer_class = serializers.UserBankAccountsSerializer
+
+    def get_queryset(self):
+        return models.UserBankAccount.objects.filter(user_id=self.kwargs['pk'], confirmed=True).order_by('-id')
+
+
+class UserSupportRequestListView(generics.ListAPIView):
+    queryset = models.UserSupportRequest.objects.all()
+    serializer_class = serializers.SupportRequestSerializer
+
+
+class UserSupportChatListView(generics.ListAPIView):
+    queryset = models.UserSupportChat.objects.all()
+    serializer_class = serializers.SupportChatSerializer
+
+
+class UserFavoriteRetrieveView(generics.RetrieveAPIView):
+    queryset = models.UserFavorites.objects.all()
+    serializer_class = serializers.UserFavoritesSerializer
+
+
+class UserSettingsRetrieveView(generics.RetrieveAPIView):
+    queryset = models.UserSetting.objects.all()
+    serializer_class = serializers.UserSettingsSerializer

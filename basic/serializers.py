@@ -42,7 +42,6 @@ class ProvinceSerializer(serializers.ModelSerializer):
 class CitySerializer(serializers.ModelSerializer):
     province = ProvinceSerializer(read_only=True)
     country = CountrySerializer(read_only=True)
-    # country = serializers.StringRelatedField(source='country.name')
 
     class Meta:
         model = models.City

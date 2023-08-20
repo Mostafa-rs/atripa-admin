@@ -2,11 +2,12 @@
     Account Database Models
     Author: Mostafa Rasouli
     Email: mostafarasooli54@gmail.com
-    Last Modified: 2023/08/07
+    2023/08/07
 """
 import jdatetime
 # System
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import AbstractUser
 
 
@@ -58,13 +59,16 @@ class User(AbstractUser):
 
     @property
     def get_birthdate_persian(self):
-        result = str(jdatetime.date.fromgregorian(date=self.birthdate))
-        return result
-
+        if self.birthdate:
+            result = str(jdatetime.date.fromgregorian(date=self.birthdate))
+            return result
+        return ' '
     @property
     def get_passport_expiry_date_persian(self):
-        result = str(jdatetime.date.fromgregorian(date=self.passport_expiry_date))
-        return result
+        if self.passport_expiry_date:
+            result = str(jdatetime.date.fromgregorian(date=self.passport_expiry_date))
+            return result
+        return ' '
 
     @property
     def get_full_name_persian(self):
@@ -116,6 +120,7 @@ class User(AbstractUser):
 
         return _spend
 
+    @property
     def balance(self):
         return self.income - self.spend
 
@@ -187,7 +192,7 @@ class UserConfirmation(models.Model):
 class UserPassenger(models.Model):
     """
         user's passengers table
-        """
+    """
 
     class Meta:
         db_table = "account_user_passenger"
@@ -210,7 +215,7 @@ class UserPassenger(models.Model):
 class UserBankAccount(models.Model):
     """
         user's bank accounts information table
-        """
+    """
 
     class Meta:
         db_table = "account_user_bank_account"
@@ -305,8 +310,10 @@ class UserTransaction(models.Model):
     date = models.DateTimeField(null=True)
     amount = models.PositiveIntegerField(default=0)
     reference_id = models.CharField(max_length=45, null=True)
-    type = models.IntegerField(default=Type.DEPOSIT_ONLINE)
-    status = models.IntegerField(default=Status.PENDING_PAYMENT)
+    type = models.IntegerField(default=Type.DEPOSIT_ONLINE, help_text='0-4 deposit   10-14 withdraw')
+    status = models.IntegerField(default=Status.PENDING_PAYMENT, help_text='0 pending 1 paid 2 canceled 3 refunding '
+                                                                           '4 refund 5 pending withdraw 6 withdraw')
+    wallet_balance = models.IntegerField(default=0)
     payment_date = models.DateTimeField(null=True)
     description = models.TextField(null=True)
     redirect_code = models.CharField(max_length=45, null=True)
@@ -360,6 +367,14 @@ class UserTransaction(models.Model):
                 return "برداشت شده"
             case _:
                 return "نامشخص"
+
+    def get_type_sign(self):
+        if self.type in [0, 1, 2, 3, 4]:
+            return True
+        elif self.type in [10, 11, 12, 13, 14]:
+            return False
+        else:
+            return None
 
 
 class UserSupportRequest(models.Model):
@@ -431,16 +446,16 @@ class UserFavorites(models.Model):
         db_table = "account_user_favorites"
 
     user = models.ForeignKey("accounts.User", models.CASCADE, "auf_user", to_field="id", null=True)
-    religious = models.IntegerField(default=1)
-    nature = models.IntegerField(default=1)
-    adventure = models.IntegerField(default=1)
-    historical = models.IntegerField(default=1)
-    art_cultural = models.IntegerField(default=1)
-    shopping = models.IntegerField(default=1)
-    energy_class = models.IntegerField(default=1)
-    price_class = models.IntegerField(default=1)
-    sleep_class = models.IntegerField(default=1)
-    accommodation = models.IntegerField(default=1)
+    religious = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    nature = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    adventure = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    historical = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    art_cultural = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    shopping = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    energy_class = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(3)])
+    price_class = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(3)])
+    sleep_class = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(3)])
+    accommodation = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(3)])
 
 
 class UserSetting(models.Model):
@@ -490,3 +505,5 @@ class UserSubscribe(models.Model):
     subscribe = models.ForeignKey("basic.Subscribe", models.CASCADE, "ausu_subscribe", to_field="id", null=True)
     # order = models.ForeignKey("reserve.Order", models.CASCADE, "ausu_order", to_field="id", null=True)
     expiry_date = models.DateField(null=True)
+
+
