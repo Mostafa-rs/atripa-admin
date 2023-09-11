@@ -4,11 +4,14 @@
     Email: mostafarasooli54@gmail.com
     2023/08/07
 """
+
+
 import jdatetime
 # System
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import AbstractUser
+from . import utils
 
 
 class User(AbstractUser):
@@ -130,6 +133,11 @@ class Agency(models.Model):
         Agency & Legal information table
         """
 
+    class Status:
+        NOT_DETERMINED = 0
+        CONFIRMED = 1
+        REJECTED = 2
+
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey("accounts.User", models.CASCADE, "aa_user", to_field="id", null=True)
     logo = models.TextField(null=True, blank=True)
@@ -145,8 +153,20 @@ class Agency(models.Model):
     address = models.TextField(null=True)
     postal_code = models.CharField(max_length=10, null=True)
     introduce_letter = models.TextField(null=True)
-    confirmed = models.BooleanField(default=False)
+    # confirmed = models.BooleanField(default=False)
+    status = models.IntegerField(default=Status.NOT_DETERMINED)
     date_registered = models.DateTimeField(null=True)
+
+    def get_status(self):
+        match self.status:
+            case 0:
+                return 'تعیین وضعیت'
+            case 1:
+                return 'تایید شده'
+            case 2:
+                return 'عدم تایید'
+            case _:
+                return 'نامشخص'
 
 
 class UserType(models.Model):
@@ -393,12 +413,30 @@ class UserSupportRequest(models.Model):
         COMPLAIN = 4
 
     user = models.ForeignKey('accounts.User', models.CASCADE, 'ausr_user', to_field='id', null=True)
+    identify_no = models.PositiveIntegerField(default=utils.identify_generator, null=True, blank=True)
     type = models.ForeignKey('basic.SupportType', models.CASCADE, 'ausr_type', to_field='id', null=True)
     register_date = models.DateTimeField(null=True)
     last_modified_date = models.DateTimeField(null=True)
     title = models.TextField(max_length=30, null=True)
     status = models.IntegerField(default=Status.USER_REPLY)
-    supporter = models.ForeignKey('accounts.User', models.CASCADE, 'ausr_supporter', to_field='id', null=True)
+    supporter = models.ForeignKey('accounts.User', models.CASCADE, 'ausr_supporter', to_field='id', null=True,
+                                  blank=True)
+
+    @property
+    def get_register_date_persian(self):
+        if self.register_date:
+            result = str(jdatetime.datetime.fromgregorian(datetime=self.register_date))
+            result = result.split(' ')
+            return result[0] + ' | ' + result[1][:-5]
+        return ' '
+
+    @property
+    def get_last_modified_date_persian(self):
+        if self.last_modified_date:
+            result = str(jdatetime.datetime.fromgregorian(datetime=self.last_modified_date))
+            result = result.split(' ')
+            return result[0] + ' | ' + result[1][:-5]
+        return ' '
 
     @property
     def get_status(self):
@@ -416,11 +454,15 @@ class UserSupportRequest(models.Model):
             case _:
                 return "نامشخص"
 
+    @property
+    def get_type(self):
+        return f'{self.title}-{self.type.name}'
+
 
 class UserSupportChat(models.Model):
     """
         user's support request's chats table
-        """
+    """
 
     class Meta:
         db_table = 'account_user_support_chat'
@@ -435,6 +477,14 @@ class UserSupportChat(models.Model):
     date = models.DateTimeField(null=True)
     attach = models.TextField(null=True)
     text = models.TextField(null=True)
+
+    @property
+    def get_date_persian(self):
+        if self.date:
+            result = str(jdatetime.datetime.fromgregorian(datetime=self.date))
+            result = result.split(' ')
+            return result[0] + ' | ' + result[1][:-12]
+        return ' '
 
 
 class UserFavorites(models.Model):

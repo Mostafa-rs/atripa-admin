@@ -66,19 +66,9 @@ class UserBankAccountsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class SupportRequestSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(source='get_status')
-    user = serializers.CharField(source='user.get_full_name_persian')
-    supporter = serializers.CharField(source='supporter.get_full_name_persian')
-    type = serializers.CharField(source='type.name')
-
-    class Meta:
-        model = models.UserSupportRequest
-        fields = '__all__'
-
-
 class SupportChatSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.get_full_name_persian')
+    date = serializers.CharField(source='get_date_persian')
 
     class Meta:
         model = models.UserSupportChat
@@ -97,3 +87,34 @@ class UserSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserSetting
         fields = '__all__'
+
+
+class UserPointSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserPoint
+        exclude = ('user', )
+
+
+class SupportSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.get_full_name_persian', read_only=True)
+    supporter = serializers.CharField(source='supporter.get_full_name_persian', read_only=True)
+    status = serializers.CharField(source='get_status', read_only=True)
+    status_no = serializers.IntegerField(source='status')
+    type = serializers.CharField(source='get_type', read_only=True)
+    single_type = serializers.CharField(source='type.name')
+    modified_persian = serializers.CharField(source='get_last_modified_date_persian', read_only=True)
+    register_date_persian = serializers.CharField(source='get_register_date_persian', read_only=True)
+
+    class Meta:
+        model = models.UserSupportRequest
+        exclude = ('register_date', 'last_modified_date')
+
+
+class AgencyListSerializer(serializers.ModelSerializer):
+    get_status = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = models.Agency
+        fields = ('id', 'name', 'ceo', 'economic_code', 'phone_number', 'status', 'get_status')
+
+

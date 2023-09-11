@@ -20,11 +20,17 @@ class CityFilter(filters.FilterSet):
         ('1', 'des alpha'),
     )
 
+    # Filter by country
     c_n = filters.ModelMultipleChoiceFilter(queryset=models.Country.objects.all(), field_name='country')
+    # Filter by province
     p_n = filters.ModelMultipleChoiceFilter(queryset=models.Province.objects.all(), field_name='province')
+    # Filter by is country capital
     c_cap = filters.BooleanFilter(field_name='is_country_capital')
+    # Filter by is province capital
     p_cap = filters.BooleanFilter(field_name='is_province_capital')
+    # Sort by date
     d_s = filters.ChoiceFilter(choices=D_S, method='d_s_filter')
+    # Sort by alphabet
     a_s = filters.ChoiceFilter(choices=D_S, method='a_s_filter')
 
     def d_s_filter(self, queryset, name, value):
